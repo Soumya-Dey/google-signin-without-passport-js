@@ -10,23 +10,43 @@ app.get("/", (req, res) => res.send("Hello from localhost:5000"));
 
 app.get("/user/signin", async (req, res) => {
   try {
-    const { code } = req.query;
+    const { code, method } = req.query;
 
     if (!code)
       return res
         .status(400)
         .json({ errors: [{ msg: "No code found in url" }] });
 
-    const { data: tokenData } = await axios({
-      url: `https://oauth2.googleapis.com/token`,
-      method: "post",
-      data: {
+    let urlForData;
+    let dataForToken;
+    let reqMethod;
+    let queryParams;
+    if (method === "google") {
+      urlForData = `https://oauth2.googleapis.com/token`;
+      dataForToken = {
         client_id: env.CLIENT_ID,
         client_secret: env.CLIENT_SECRET,
         redirect_uri: "http://localhost:3000/auth/google",
         grant_type: "authorization_code",
         code,
-      },
+      };
+      reqMethod = "post";
+    } else if (method === "facebook") {
+      queryParams = new URLSearchParams({
+        client_id: env.FACEBOOK_APP_ID,
+        client_secret: env.FACEBOOK_APP_SECRET,
+        redirect_uri: "http://localhost:3000/auth/facebook",
+        code,
+      }).toString();
+      urlForData = `https://graph.facebook.com/v9.0/oauth/access_token?${queryParams}`;
+      dataForToken = {};
+      reqMethod = "get";
+    }
+
+    const { data: tokenData } = await axios({
+      url: urlForData,
+      method: reqMethod,
+      data: dataForToken,
     });
 
     const token = tokenData.access_token;
@@ -36,12 +56,25 @@ app.get("/user/signin", async (req, res) => {
         .status(400)
         .json({ errors: [{ msg: "Problem fetching access token" }] });
 
-    const { data: userInfo } = await axios({
-      url: "https://www.googleapis.com/oauth2/v2/userinfo",
-      method: "get",
-      headers: {
+    let headersForInfo;
+    if (method === "google") {
+      urlForData = `https://www.googleapis.com/oauth2/v2/userinfo`;
+      headersForInfo = {
         Authorization: `Bearer ${token}`,
-      },
+      };
+    } else if (method === "facebook") {
+      queryParams = new URLSearchParams({
+        fields: ["id", "email", "first_name", "last_name"].join(","),
+        access_token: token,
+      }).toString();
+      urlForData = `https://graph.facebook.com/me?${queryParams}`;
+      headersForInfo = {};
+    }
+
+    const { data: userInfo } = await axios({
+      url: urlForData,
+      method: "get",
+      headers: headersForInfo,
     });
 
     if (!userInfo)
