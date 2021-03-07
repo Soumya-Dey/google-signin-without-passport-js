@@ -15,6 +15,7 @@ app.get('/', (req, res) => res.send('Hello from localhost:5000'));
 
 app.get('/user/signin', async (req, res) => {
   try {
+    // TODO: also get the clientId here to save page details inside copany model in db
     const { code, method } = req.query;
 
     if (!code)
@@ -99,6 +100,10 @@ app.get('/user/signin', async (req, res) => {
       method: 'get',
       headers: headersForInfo,
     });
+
+    // TODO: save the page-id, page-name, page-access-token in company model in db
+
+    // TODO: should we connect all user pages to our app or give them the option to connect manually
 
     queryParams = new URLSearchParams({
       subscribed_fields: ['feed'].join(','),
