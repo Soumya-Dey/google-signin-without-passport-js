@@ -4,6 +4,8 @@ const cors = require('cors');
 
 const env = require('./env');
 
+const PORT = process.env.PORT || 8000;
+
 app.use(cors());
 
 app.get('/', (req, res) => res.send('Hello from localhost:5000'));
@@ -177,6 +179,6 @@ app.post('/webhook/facebook', async (req, res) => {
   // }
 });
 
-app.listen(8000, () =>
-  console.log('server started at => http://localhost:8000/')
+app.listen(PORT, () =>
+  console.log(`server started at => http://localhost:${PORT}/`)
 );
