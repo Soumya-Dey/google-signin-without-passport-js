@@ -146,10 +146,19 @@ app.get('/webhook/facebook', async (req, res) => {
 });
 
 app.post('/webhook/facebook', async (req, res) => {
-  let body = req.body;
-  console.log('req.body: ', body);
+  let { object, entry } = req.body;
 
-  res.status(200).json({ msg: 'OK' });
+  if (object === 'page') {
+    entry.forEach((item) => {
+      item.changes.forEach((change) => {
+        console.log(change);
+      });
+    });
+
+    res.status(200).json({ msg: 'OK' });
+  } else {
+    res.sendStatus(404);
+  }
 
   // Check the webhook event is from a Page subscription
   // if (body.object === 'page') {
