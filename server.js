@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 7001;
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req, res) => res.send('Hello from localhost:5000'));
+app.get('/', (req, res) => res.send(`Hello from localhost: ${PORT}`));
 
 app.get('/user/signin', async (req, res) => {
   try {
