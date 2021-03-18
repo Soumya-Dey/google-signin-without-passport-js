@@ -6,7 +6,7 @@ const env = require('./env');
 
 const app = express();
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 7001;
 
 app.use(express.json());
 app.use(cors());
@@ -86,40 +86,42 @@ app.get('/user/signin', async (req, res) => {
     if (!userInfo)
       return res.status(400).json({ errors: [{ msg: 'No user found' }] });
 
-    queryParams = new URLSearchParams({
-      fields: ['id', 'name', 'access_token'].join(','),
-      access_token: token,
-    }).toString();
-    urlForData = `https://graph.facebook.com/v9.0/${userInfo.id}/accounts?${queryParams}`;
-    headersForInfo = {};
+    res.json(userInfo);
 
-    const {
-      data: { data: pages },
-    } = await axios({
-      url: urlForData,
-      method: 'get',
-      headers: headersForInfo,
-    });
+    // queryParams = new URLSearchParams({
+    //   fields: ['id', 'name', 'access_token'].join(','),
+    //   access_token: token,
+    // }).toString();
+    // urlForData = `https://graph.facebook.com/v9.0/${userInfo.id}/accounts?${queryParams}`;
+    // headersForInfo = {};
 
-    // TODO: save the page-id, page-name, page-access-token in company model in db
+    // const {
+    //   data: { data: pages },
+    // } = await axios({
+    //   url: urlForData,
+    //   method: 'get',
+    //   headers: headersForInfo,
+    // });
 
-    // TODO: should we connect all user pages to our app or give them the option to connect manually
+    // // TODO: save the page-id, page-name, page-access-token in company model in db
 
-    queryParams = new URLSearchParams({
-      subscribed_fields: ['feed'].join(','),
-      access_token: pages[0].access_token,
-    }).toString();
-    urlForData = `https://graph.facebook.com/${pages[0].id}/subscribed_apps?${queryParams}`;
-    headersForInfo = {};
+    // // TODO: should we connect all user pages to our app or give them the option to connect manually
 
-    const { data } = await axios({
-      url: urlForData,
-      method: 'post',
-      headers: headersForInfo,
-    });
+    // queryParams = new URLSearchParams({
+    //   subscribed_fields: ['feed'].join(','),
+    //   access_token: pages[0].access_token,
+    // }).toString();
+    // urlForData = `https://graph.facebook.com/${pages[0].id}/subscribed_apps?${queryParams}`;
+    // headersForInfo = {};
 
-    console.log('data', data);
-    res.json({ data, pages });
+    // const { data } = await axios({
+    //   url: urlForData,
+    //   method: 'post',
+    //   headers: headersForInfo,
+    // });
+
+    // console.log('data', data);
+    // res.json({ data, pages });
   } catch (error) {
     res
       .status(500)
